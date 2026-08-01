@@ -1,0 +1,638 @@
+# Reactor SDK
+
+> Realtime Video AI SDKs for web and Python applications. Build powerful Realtime Video AI applications in minutes.
+
+Reactor makes working with and using Realtime Video AI a breeze. The platform provides a **JavaScript SDK** (with React components/hooks and an imperative API) and a **Python SDK** (async, decorator-based) for connecting to AI video generation models running on Reactor's cloud infrastructure.
+
+## Quick Facts
+
+- JS Package: `@reactor-team/js-sdk` — `npm install @reactor-team/js-sdk`
+- Python Package: `reactor-sdk` — `pip install reactor-sdk`
+- Website: https://reactor.inc
+- GitHub: https://github.com/reactor-team/reactor-experiments
+- Support: team@reactor.inc
+
+## Available Models
+
+| Model Name | Description |
+|------------|-------------|
+| Helios | Interactive real-time video generation with infinite streaming |
+
+## Connection Lifecycle (both SDKs)
+
+A Reactor connection goes through four states:
+
+```
+DISCONNECTED → CONNECTING → WAITING → READY
+```
+
+- **disconnected**: No active connection
+- **connecting**: Connecting to the Reactor API
+- **waiting**: Connected to API, waiting for GPU assignment
+- **ready**: Connected to GPU, can send and receive messages
+
+**Important:** You must wait for `"ready"` status before sending commands.
+
+---
+
+## JavaScript SDK
+
+### Authentication
+
+Exchange the API key for a token by making a `POST` request to the `/tokens` endpoint:
+
+```typescript
+const r = await fetch("https://api.reactor.inc/tokens", {
+  method: "POST",
+  headers: { "Reactor-API-Key": process.env.REACTOR_API_KEY! },
+});
+const { jwt } = await r.json();
+```
+
+Although the SDK works in any JavaScript environment including the browser, do not store your API key in client-side code. Use your server as a proxy to generate short-lived tokens.
+
+### React API (Recommended)
+
+#### ReactorProvider Props
+
+| Prop | Type | Required | Description |
+|------|------|----------|-------------|
+| `modelName` | `string` | Yes | Model to connect to (e.g., `helios`) |
+| `jwtToken` | `string` | No | Token from your backend |
+| `apiUrl` | `string` | No | API URL (default: `https://api.reactor.inc`) |
+| `local` | `boolean` | No | Connect to local runtime at localhost:8080 (default: false) |
+| `connectOptions` | `object` | No | Connection behavior options (see below) |
+
+**connectOptions:**
+
+| Option | Type | Description |
+|--------|------|-------------|
+| `autoConnect` | `boolean` | Auto-connect on mount (default: **false**) |
+| `maxAttempts` | `number` | Max SDP polling attempts (default: 6) |
+
+```typescript
+<ReactorProvider
+  modelName="helios"
+  jwtToken={token}
+  connectOptions={{ autoConnect: true }}
+>
+```
+
+#### ReactorView Props
+
+Displays the video stream from the model.
+
+| Prop | Type | Description |
+|------|------|-------------|
+| `track` | `string` | Video track to display (default: `"main_video"`) |
+| `audioTrack` | `string` | Optional audio track to play alongside the video |
+| `muted` | `boolean` | Whether the video element is muted (default: `true`) |
+| `className` | `string` | CSS class name |
+| `style` | `CSSProperties` | Inline styles |
+| `width` | `number` | Width of the video element |
+| `height` | `number` | Height of the video element |
+| `videoObjectFit` | `"contain" \| "cover" \| "fill" \| "none" \| "scale-down"` | Video fit mode (default: `"contain"`) |
+
+#### WebcamStream Props
+
+Captures and auto-publishes webcam video to the model. Handles camera permissions, lifecycle, and auto-publishing/unpublishing.
+
+| Prop | Type | Required | Description |
+|------|------|----------|-------------|
+| `track` | `string` | Yes | Send track name to publish to. Must match a sendonly track declared by the model. |
+| `className` | `string` | No | CSS class name |
+| `style` | `CSSProperties` | No | Inline styles |
+| `videoConstraints` | `MediaTrackConstraints` | No | Webcam constraints (default: 1280x720) |
+| `showWebcam` | `boolean` | No | Show webcam preview (default: true) |
+| `videoObjectFit` | `"contain" \| "cover" \| "fill" \| "none" \| "scale-down"` | No | Video fit mode (default: `"contain"`) |
+
+```typescript
+import { WebcamStream } from "@reactor-team/js-sdk";
+
+<ReactorProvider modelName="your-model-name" jwtToken={token}>
+  <WebcamStream
+    track="webcam"
+    className="w-full aspect-video"
+    videoObjectFit="cover"
+  />
+</ReactorProvider>
+```
+
+#### ReactorController
+
+Auto-generates UI controls from the model's command schema. Intended for prototyping and debugging.
+
+| Prop | Type | Description |
+|------|------|-------------|
+| `className` | `string` | CSS class name |
+| `style` | `CSSProperties` | Inline styles |
+
+When the connection reaches `"ready"`, the component requests the model's capabilities and renders a form for each declared command.
+
+#### useReactor Hook
+
+```typescript
+const value = useReactor<T>(selector: (state: ReactorStore) => T): T
+```
+
+Available store properties:
+
+| Property | Type | Description |
+|----------|------|-------------|
+| `status` | `ReactorStatus` | Current connection status |
+| `lastError` | `ReactorError \| undefined` | Most recent error |
+| `tracks` | `Record<string, MediaStreamTrack>` | Received tracks by name |
+| `sessionId` | `string \| undefined` | Current session ID |
+| `connect` | `(jwtToken?: string) => Promise<void>` | Connect to the model |
+| `disconnect` | `(recoverable?: boolean) => Promise<void>` | Disconnect from the model |
+| `reconnect` | `(options?: ConnectOptions) => Promise<void>` | Reconnect to an existing session |
+| `sendCommand` | `(command: string, data: object) => Promise<void>` | Send a command to the model |
+| `publish` | `(name: string, track: MediaStreamTrack) => Promise<void>` | Publish a named track |
+| `unpublish` | `(name: string) => Promise<void>` | Stop publishing a named track |
+
+Best practice — select multiple related values as object:
+
+```typescript
+const { status, connect, disconnect, sendCommand } = useReactor((state) => ({
+  status: state.status,
+  connect: state.connect,
+  disconnect: state.disconnect,
+  sendCommand: state.sendCommand,
+}));
+```
+
+#### useReactorMessage Hook
+
+```typescript
+useReactorMessage((message: any) => {
+  if (message.type === "state") {
+    console.log("Current frame:", message.data.current_frame);
+  }
+});
+```
+
+Only receives `application`-scoped messages. Internal platform messages are handled by the SDK.
+
+#### useStats Hook
+
+Returns live WebRTC connection statistics, updated every 2 seconds while connected.
+
+```typescript
+const stats = useStats(); // ConnectionStats | undefined, updates every 2s
+```
+
+### Imperative API
+
+```typescript
+import { Reactor } from "@reactor-team/js-sdk";
+
+const reactor = new Reactor({
+  modelName: "helios",
+});
+
+reactor.on("trackReceived", (name, track, stream) => {
+  document.getElementById("video").srcObject = stream;
+});
+
+await reactor.connect(token);
+await reactor.sendCommand("start", {});
+```
+
+#### Reactor Constructor Options
+
+| Option | Type | Required | Description |
+|--------|------|----------|-------------|
+| `modelName` | `string` | Yes | Model to connect to |
+| `apiUrl` | `string` | No | API URL (default: `https://api.reactor.inc`) |
+
+#### Reactor Class Methods
+
+| Method | Signature | Description |
+|--------|-----------|-------------|
+| `connect()` | `(jwtToken?: string, options?: ConnectOptions) => Promise<void>` | Connect to API and GPU |
+| `disconnect()` | `(recoverable?: boolean) => Promise<void>` | Disconnect (recoverable keeps session alive) |
+| `reconnect()` | `(options?: ConnectOptions) => Promise<void>` | Reconnect to an existing session |
+| `sendCommand()` | `(command: string, data: any) => Promise<void>` | Send command to the model |
+| `publishTrack()` | `(name: string, track: MediaStreamTrack) => Promise<void>` | Publish a named track to model |
+| `unpublishTrack()` | `(name: string) => Promise<void>` | Stop publishing a named track |
+| `getStatus()` | `() => ReactorStatus` | Get current status |
+| `getState()` | `() => ReactorState` | Get full state with error info |
+| `getSessionId()` | `() => string \| undefined` | Get current session ID |
+| `getLastError()` | `() => ReactorError \| undefined` | Get most recent error |
+| `getCapabilities()` | `() => Capabilities \| undefined` | Get model capabilities (tracks, commands) |
+| `getSessionInfo()` | `() => SessionInfo \| undefined` | Get full session response |
+| `getStats()` | `() => ConnectionStats \| undefined` | Get WebRTC connection stats |
+| `on()` | `(event: ReactorEvent, handler) => void` | Register event listener |
+| `off()` | `(event: ReactorEvent, handler) => void` | Remove event listener |
+
+#### Events
+
+| Event | Payload | Description |
+|-------|---------|-------------|
+| `statusChanged` | `ReactorStatus` | Connection status changed |
+| `message` | `any` | Application message from model |
+| `runtimeMessage` | `any` | Internal platform message (used by ReactorController) |
+| `trackReceived` | `(name: string, track: MediaStreamTrack, stream: MediaStream)` | Named media track received from model |
+| `error` | `ReactorError` | Error occurred |
+| `sessionIdChanged` | `string \| undefined` | Session ID changed |
+| `sessionExpirationChanged` | `number \| undefined` | Session expiration (Unix timestamp) |
+| `capabilitiesReceived` | `Capabilities` | Model capabilities received |
+| `statsUpdate` | `ConnectionStats` | WebRTC stats updated (every 2s while connected) |
+
+### JS Types
+
+```typescript
+type ReactorStatus = "disconnected" | "connecting" | "waiting" | "ready";
+
+interface ReactorError {
+  code: string;                              // e.g., "AUTHENTICATION_FAILED"
+  message: string;                           // Human-readable message
+  timestamp: number;                         // Unix timestamp
+  recoverable: boolean;                      // Whether auto-recovery is possible
+  component: "api" | "gpu";                  // Source component
+  retryAfter?: number;                       // Suggested retry delay (seconds)
+}
+
+interface ReactorState {
+  status: ReactorStatus;
+  lastError?: ReactorError;
+}
+
+interface ConnectOptions {
+  maxAttempts?: number;  // Max SDP polling attempts (default: 6)
+}
+
+interface TrackCapability {
+  name: string;
+  kind: "video" | "audio";
+  direction: "recvonly" | "sendonly";
+}
+
+interface Capabilities {
+  protocol_version: string;
+  tracks: TrackCapability[];
+  commands?: CommandCapability[];
+  emission_fps?: number | null;
+}
+
+interface ConnectionStats {
+  timestamp: number;                    // When stats were collected (Unix ms)
+  rtt?: number;                         // Round-trip time in milliseconds
+  framesPerSecond?: number;             // Received video frames per second
+  jitter?: number;                      // Network jitter in seconds
+  packetLossRatio?: number;             // Packet loss ratio (0 to 1)
+  candidateType?: string;               // ICE candidate type
+  availableOutgoingBitrate?: number;    // Available outgoing bitrate in bits/second
+  connectionTimings?: ConnectionTimings; // Connection timing breakdown
+}
+
+// Thrown when model is already in use by another session
+class ConflictError extends Error {}
+```
+
+Common error codes: `CONNECTION_FAILED`, `GPU_CONNECTION_ERROR`, `MESSAGE_SEND_FAILED`, `TRACK_PUBLISH_FAILED`, `RECONNECTION_FAILED`
+
+### Error Handling
+
+```typescript
+// Imperative API
+reactor.on("error", async (error) => {
+  console.error(`[${error.component}] ${error.code}: ${error.message}`);
+  if (error.recoverable) {
+    const delay = error.retryAfter || 3;
+    await new Promise(r => setTimeout(r, delay * 1000));
+    await reactor.reconnect();
+  }
+});
+
+// React API
+function ErrorDisplay() {
+  const lastError = useReactor((state) => state.lastError);
+  if (!lastError) return null;
+  return <div>{lastError.code}: {lastError.message}</div>;
+}
+```
+
+### JS Complete Example
+
+```typescript
+import { useState, useEffect } from "react";
+import {
+  ReactorProvider,
+  ReactorView,
+  useReactor,
+  useReactorMessage,
+} from "@reactor-team/js-sdk";
+
+function VideoPlayer() {
+  const { status, connect, sendCommand } = useReactor((s) => ({
+    status: s.status,
+    connect: s.connect,
+    sendCommand: s.sendCommand,
+  }));
+
+  const start = async () => {
+    await sendCommand("schedule_prompt", { prompt: "A sunset", chunk: 0 });
+    await sendCommand("start", {});
+  };
+
+  useReactorMessage((message) => {
+    if (message.type === "state") {
+      console.log("Frame:", message.data.current_frame);
+    }
+  });
+
+  return (
+    <div>
+      <ReactorView className="w-full aspect-video" videoObjectFit="cover" />
+      <p>Status: {status}</p>
+      <button onClick={connect} disabled={status !== "disconnected"}>Connect</button>
+      <button onClick={start} disabled={status !== "ready"}>Start</button>
+    </div>
+  );
+}
+
+export default function App() {
+  const [token, setToken] = useState<string | null>(null);
+
+  useEffect(() => {
+    async function fetchToken() {
+      const r = await fetch("/api/token", { method: "POST" });
+      const { jwt } = await r.json();
+      setToken(jwt);
+    }
+    fetchToken().catch(console.error);
+  }, []);
+
+  if (!token) return <div>Authenticating...</div>;
+
+  return (
+    <ReactorProvider
+      modelName="helios"
+      jwtToken={token}
+      connectOptions={{ autoConnect: false }}
+    >
+      <VideoPlayer />
+    </ReactorProvider>
+  );
+}
+```
+
+---
+
+## Python SDK
+
+### Authentication
+
+Pass your API key directly to the constructor — the SDK handles token exchange automatically during `connect()`:
+
+```python
+from reactor_sdk import Reactor
+
+reactor = Reactor(model_name="helios", api_key="rk_your_api_key")
+await reactor.connect()
+```
+
+### Constructor
+
+```python
+Reactor(
+    model_name: str,
+    api_key: str | None = None,
+    api_url: str = "https://api.reactor.inc",
+    local: bool = False,
+)
+```
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `model_name` | `str` | Yes | Model to connect to |
+| `api_key` | `str` | No | API key (auto-fetches token). Required unless `local=True` |
+| `api_url` | `str` | No | API URL (default: `https://api.reactor.inc`). Ignored if `local=True` |
+| `local` | `bool` | No | Connect to local runtime at localhost:8080 (default: False) |
+
+### Methods
+
+| Method | Signature | Description |
+|--------|-----------|-------------|
+| `connect()` | `await reactor.connect() -> None` | Connect to API and wait for GPU |
+| `disconnect()` | `await reactor.disconnect(recoverable: bool = False) -> None` | Disconnect (recoverable keeps session alive) |
+| `reconnect()` | `await reactor.reconnect() -> None` | Reconnect to an existing session |
+| `send_command()` | `await reactor.send_command(command: str, data: Any) -> None` | Send a command to the model |
+| `get_status()` | `reactor.get_status() -> ReactorStatus` | Get current connection status |
+| `get_state()` | `reactor.get_state() -> ReactorState` | Get full connection state |
+| `get_session_id()` | `reactor.get_session_id() -> str \| None` | Get current session ID |
+| `get_last_error()` | `reactor.get_last_error() -> ReactorError \| None` | Get most recent error |
+| `get_capabilities()` | `reactor.get_capabilities() -> Capabilities \| None` | Get model capabilities (tracks, commands) |
+| `get_session_info()` | `reactor.get_session_info() -> CreateSessionResponse \| None` | Get full session response |
+| `get_remote_tracks()` | `reactor.get_remote_tracks() -> dict[str, MediaStreamTrack]` | Get received tracks by name |
+| `publish_track()` | `await reactor.publish_track(name: str, track: MediaStreamTrack) -> None` | Publish a named track to the model |
+| `unpublish_track()` | `await reactor.unpublish_track(name: str) -> None` | Stop publishing a named track |
+| `set_frame_callback()` | `reactor.set_frame_callback(callback: FrameCallback \| None) -> None` | Set/clear frame receive callback |
+| `on()` | `reactor.on(event: ReactorEvent, callback) -> None` | Register an event handler |
+| `off()` | `reactor.off(event: ReactorEvent, callback) -> None` | Remove an event handler |
+
+### Context Manager
+
+```python
+async with Reactor(model_name="helios", api_key=api_key) as reactor:
+    await reactor.send_command("start", {})
+    # Automatically disconnects on exit
+```
+
+### Decorators
+
+```python
+@reactor.on_frame
+def handle_frame(frame):
+    """Receive video frames as NumPy arrays (H, W, 3) RGB uint8"""
+    print(f"Frame shape: {frame.shape}")
+
+@reactor.on_message
+def handle_message(message):
+    """Receive application messages from the model"""
+    print(f"Message: {message}")
+
+@reactor.on_internal_message
+def handle_internal(message):
+    """Receive internal platform messages (rarely needed)"""
+    pass
+
+@reactor.on_status(ReactorStatus.READY)
+def on_ready(status):
+    """React to specific status changes"""
+    print("Connected to GPU!")
+
+@reactor.on_error
+def handle_error(error):
+    """Handle errors"""
+    print(f"Error: {error}")
+
+@reactor.on_track("video")
+def handle_track(track):
+    """Access a named raw WebRTC MediaStreamTrack"""
+    print(f"Received track: {track.kind}")
+```
+
+### Events
+
+| Event | Payload | Description |
+|-------|---------|-------------|
+| `"status_changed"` | `ReactorStatus` | Connection status changed |
+| `"session_id_changed"` | `str \| None` | Session ID changed |
+| `"message"` | `Any` | Application message from the model |
+| `"runtime_message"` | `Any` | Internal platform message |
+| `"track_received"` | `(name: str, track: MediaStreamTrack)` | Named track received |
+| `"error"` | `ReactorError` | Error occurred |
+| `"session_expiration_changed"` | `float \| None` | Session expiration time updated |
+| `"capabilities_received"` | `Capabilities` | Model capabilities received |
+
+Note: Python events use `snake_case` (e.g., `"status_changed"`) while JavaScript uses `camelCase` (e.g., `"statusChanged"`).
+
+### Types
+
+| Type | Kind | Values / Fields |
+|------|------|-----------------|
+| `ReactorStatus` | Enum | `DISCONNECTED`, `CONNECTING`, `WAITING`, `READY` |
+| `ReactorState` | Dataclass | `status: ReactorStatus`, `last_error: ReactorError \| None` |
+| `ReactorError` | Dataclass | `code: str`, `message: str`, `timestamp: float`, `recoverable: bool`, `component: Literal["api", "gpu"]`, `retry_after: float \| None` |
+| `ReactorEvent` | Literal | `"status_changed"`, `"session_id_changed"`, `"message"`, `"runtime_message"`, `"track_received"`, `"error"`, `"session_expiration_changed"`, `"capabilities_received"` |
+| `FrameCallback` | Type alias | `Callable[[NDArray[np.uint8]], None]` — receives RGB frame `(H, W, 3)` |
+| `TrackCapability` | TypedDict | `name: str`, `kind: TrackKind`, `direction: TrackDirection` |
+| `Capabilities` | TypedDict | `protocol_version: str`, `tracks: list[TrackCapability]`, `commands?: list[CommandCapability]`, `emission_fps?: float` |
+| `ConflictError` | Exception | Raised when a connection conflict occurs |
+| `VersionMismatchError` | Exception | Raised on 426/501 version negotiation failures |
+
+Common error codes: `CONNECTION_FAILED`, `GPU_CONNECTION_ERROR`, `RECONNECTION_FAILED`
+
+### Python Complete Example
+
+```python
+import asyncio
+import os
+from reactor_sdk import Reactor, ReactorStatus
+
+async def main():
+    api_key = os.environ["REACTOR_API_KEY"]
+
+    async with Reactor(model_name="helios", api_key=api_key) as reactor:
+        @reactor.on_frame
+        def on_frame(frame):
+            print(f"Frame: {frame.shape}")
+
+        @reactor.on_status(ReactorStatus.READY)
+        def on_ready(status):
+            print("Connected! Sending commands...")
+
+        @reactor.on_message
+        def on_message(message):
+            print(f"Model says: {message}")
+
+        await reactor.connect()
+
+        await reactor.send_command("schedule_prompt", {
+            "prompt": "A sunset over the ocean",
+            "chunk": 0,
+        })
+        await reactor.send_command("start", {})
+
+        # Keep running
+        while reactor.get_status() != ReactorStatus.DISCONNECTED:
+            await asyncio.sleep(1)
+
+asyncio.run(main())
+```
+
+---
+
+## Helios Model Commands
+
+Helios is an interactive, real-time video generation model with infinite streaming. Built on a 14B-parameter Diffusion Transformer, it generates video in 33-frame chunks. It supports text-to-video and image-to-video modes.
+
+Model name: `helios`
+
+| Command | Parameters | Description |
+|---------|------------|-------------|
+| `set_prompt` | `prompt: string` | Set the prompt (at chunk 0 if not started, current chunk if paused, next chunk if running) |
+| `schedule_prompt` | `prompt: string`, `chunk: integer` | Schedule a prompt at a specific chunk index |
+| `set_image` | `image_b64: string`, `transition?: "cut" \| "blend"` | Set a base64-encoded reference image (works before or during generation). Transition default: `"cut"`. |
+| `clear_image` | none | Remove the reference image, continue with text-only conditioning |
+| `set_seed` | `seed: integer` | Set the RNG seed for reproducible generation |
+| `start` | none | Start generation (requires prompt at chunk 0) |
+| `pause` | none | Pause generation after current chunk finishes |
+| `resume` | none | Resume generation |
+| `reset` | none | Reset to initial state, clears all prompts and history |
+
+**Prompt scheduling rules:**
+- Must schedule at least one prompt at chunk 0 before calling `start`
+- Scheduling at an existing chunk overwrites the previous prompt
+- Prompts scheduled at past chunks are rejected
+- Prompts can be scheduled while generation is running
+
+**Helios State Messages** (`type: "state"`):
+```json
+{
+  "type": "state",
+  "data": {
+    "running": true,
+    "current_frame": 42,
+    "current_chunk": 2,
+    "current_prompt": "A serene mountain landscape",
+    "paused": false,
+    "scheduled_prompts": { "0": "A serene mountain landscape" }
+  }
+}
+```
+
+**Helios Event Messages** (`type: "event"`):
+- `generation_started` (with `prompt`)
+- `generation_paused` (with `frame`, `chunk`)
+- `generation_resumed` (with `frame`, `chunk`)
+- `generation_reset` (with `frame`, `chunk`)
+- `image_set` (with `width`, `height`, `transition`)
+- `image_cleared`
+- `seed_set` (with `seed`)
+- `prompt_scheduled` (with `chunk`, `prompt`)
+- `prompt_switched` (with `frame`, `chunk`, `new_prompt`, `previous_prompt`)
+- `error` (with `message`)
+
+### Helios Example
+
+```typescript
+const reactor = new Reactor({ modelName: "helios" });
+await reactor.connect(token);
+
+await reactor.sendCommand("set_seed", { seed: 42 });
+await reactor.sendCommand("schedule_prompt", {
+  prompt: "A peaceful forest at dawn",
+  chunk: 0
+});
+await reactor.sendCommand("schedule_prompt", {
+  prompt: "A deer walking through the misty forest",
+  chunk: 10
+});
+await reactor.sendCommand("start", {});
+```
+
+---
+
+## Documentation Structure
+
+- `/overview` — Introduction and example usage
+- `/quickstart` — Getting started guide with CLI and manual setup
+- `/authentication` — Authentication (JavaScript and Python)
+- `/models/overview` — Available models index
+- `/models/helios` — Helios model reference (autoregressive chunked video generation)
+- `/javascript-guide` — JavaScript SDK usage patterns and best practices
+- `/python-guide` — Python SDK usage patterns and best practices
+- `/concepts/sessions` — Sessions, connection lifecycle, and reconnection
+- `/concepts/commands-and-messages` — Commands and messages
+- `/api-reference/overview` — API reference introduction (both SDKs)
+- `/api-reference/reactor-class` — JavaScript Reactor class API
+- `/api-reference/react-components` — ReactorProvider, ReactorView, WebcamStream, ReactorController
+- `/api-reference/react-hooks` — useReactor, useReactorMessage, useStats
+- `/api-reference/types` — JavaScript TypeScript type definitions
+- `/api-reference/events` — JavaScript event types and handlers
+- `/api-reference/python/reactor` — Python Reactor class API
+- `/api-reference/python/decorators` — Python decorator-based event handlers
+- `/api-reference/python/types` — Python types, enums, and utilities

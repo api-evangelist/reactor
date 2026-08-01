@@ -1,0 +1,34 @@
+generated: '2026-07-20'
+method: searched
+source: npm registry, PyPI, docs.reactor.inc
+packages:
+  - language: javascript
+    registry: npm
+    name: "@reactor-team/js-sdk"
+    version: 2.12.1
+    url: https://www.npmjs.com/package/@reactor-team/js-sdk
+    repository: https://github.com/reactor-team/js-sdk
+    install: npm install @reactor-team/js-sdk
+    license: Apache-2.0
+    description: Reactor JavaScript frontend SDK — connect React and TypeScript apps to real-time AI video models on Reactor.
+    official: true
+  - language: python
+    registry: pypi
+    name: reactor-sdk
+    version: 0.8.0
+    url: https://pypi.org/project/reactor-sdk/
+    repository: https://github.com/reactor-team/py-sdk
+    install: pip install reactor-sdk
+    license: MIT
+    description: Python SDK for Reactor — real-time AI video streaming platform (async, WebRTC, event-driven).
+    official: true
+  - language: javascript
+    registry: npm
+    name: create-reactor-app
+    version: 2.1.3
+    url: https://www.npmjs.com/package/create-reactor-app
+    repository: https://github.com/reactor-team/js-sdk
+    install: npx create-reactor-app my-app --model=helios
+    license: Apache-2.0
+    description: Scaffold a real-time AI video app with the Reactor SDK in seconds (starter templates for Helios).
+    official: true

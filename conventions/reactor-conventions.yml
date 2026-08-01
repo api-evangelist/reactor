@@ -1,0 +1,47 @@
+generated: '2026-07-20'
+method: searched
+source: https://docs.reactor.inc
+summary: >-
+  Reactor is a real-time video AI platform whose runtime interface is a WebRTC
+  peer connection with a bidirectional command/message data channel, plus one
+  REST endpoint (POST /tokens) for auth. Conventions below are cross-cutting
+  semantics captured from the SDK reference and model API reference.
+authentication:
+  style: api-key-to-jwt
+  detail: Account key (rk_) exchanged server-side for a session-scoped JWT; see authentication/reactor-authentication.yml
+connection_lifecycle:
+  states: [disconnected, connecting, waiting, ready]
+  note: Commands may only be sent after the connection reaches "ready" (GPU assigned).
+idempotency:
+  supported: false
+  note: >-
+    No idempotency-key header or parameter is documented. The interface is a
+    stateful real-time command stream, not idempotent request/response; commands
+    like set_prompt/start mutate live session state.
+pagination:
+  supported: false
+  note: No list/collection REST endpoints are documented (streaming, not CRUD).
+messaging:
+  command_channel:
+    method: sendCommand(command, data)
+    shape: '{ "type": "<command>", "data": { ... } }'
+  event_channel:
+    method: on("message", handler) / useReactorMessage
+    shape: '{ "type": "<event>", "data": { ... } }'
+    scope: Only application-scoped messages surface to the app; platform messages handled by the SDK.
+request_tracing:
+  session_id: Exposed via the store `sessionId` / reconnect uses it to resume a session.
+versioning:
+  scheme: package-semver
+  detail: Versioned via the SDK packages (js-sdk 2.x, reactor-sdk 0.x). Platform is in beta — APIs may change with breaking releases between versions.
+error_envelope:
+  runtime: '{ "type": "command_error", "data": { "command": "<name>", "reason": "<text>" } }'
+  rest: POST /tokens returns JSON; invalid/missing Reactor-API-Key rejected at the token endpoint.
+  detail: See errors/reactor-problem-types.yml
+media_tracks:
+  receive: main_video (default video track)
+  send: model-declared sendonly tracks (e.g. "webcam") published via publish()/WebcamStream
+cross_links:
+  authentication: authentication/reactor-authentication.yml
+  errors: errors/reactor-problem-types.yml
+  lifecycle: lifecycle/reactor-lifecycle.yml

@@ -1,0 +1,27 @@
+generated: '2026-07-20'
+method: derived
+source: https://docs.reactor.inc
+note: >-
+  Standards conformance derived from the documented transport and auth model.
+  Reactor is a real-time media platform (WebRTC) with a bearer-JWT auth layer;
+  it does not publish a compliance/certification program, so no Compliance
+  pointer is emitted.
+standards:
+  - id: webrtc
+    conforms: true
+    evidence: Media and command/event data channels are delivered over WebRTC peer connections (SDP polling, tracks).
+  - id: jwt-rfc7519
+    conforms: true
+    evidence: Session tokens are JWTs minted at POST /tokens with an expires_at claim window.
+  - id: rich-authorization-requests-rfc9396
+    conforms: partial
+    evidence: The /tokens request uses an authorization_details array (type/resources/constraints) mirroring RFC 9396 Rich Authorization Requests.
+  - id: oauth2
+    conforms: false
+    evidence: Custom API-key-to-token exchange; no OAuth2 authorization/token flow, scopes, or discovery document.
+  - id: rfc9457-problem-details
+    conforms: false
+    evidence: Errors use a custom command_error envelope, not application/problem+json.
+  - id: openapi
+    conforms: false
+    evidence: No OpenAPI/REST description published; interface is WebRTC command-based.

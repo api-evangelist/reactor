@@ -1,0 +1,128 @@
+asyncapi: 3.0.0
+# generated: '2026-07-20'
+# method: generated
+# source: https://docs.reactor.inc/model-api-reference/helios/schema
+# note: Faithful AsyncAPI rendering of the documented Helios real-time command/event
+#   surface (WebRTC data channel). Not a provider-published spec — generated from the
+#   documented message schema. Commands are client->model; events are model->client.
+info:
+  title: Reactor Helios Realtime API
+  version: '1.0'
+  description: >-
+    Real-time video generation control channel for Reactor's Helios model,
+    exchanged over a WebRTC data channel after a session reaches "ready".
+    Clients send commands; the model emits state and lifecycle events.
+servers:
+  reactor:
+    host: api.reactor.inc
+    protocol: wss
+    description: Reactor session established via POST https://api.reactor.inc/tokens then a WebRTC connection.
+channels:
+  commands:
+    address: commands
+    description: Commands the client sends to control generation (sendCommand).
+    messages:
+      set_prompt: {$ref: '#/components/messages/set_prompt'}
+      schedule_prompt: {$ref: '#/components/messages/schedule_prompt'}
+      set_image: {$ref: '#/components/messages/set_image'}
+      set_conditioning: {$ref: '#/components/messages/set_conditioning'}
+      set_image_strength: {$ref: '#/components/messages/set_image_strength'}
+      set_sr_scale: {$ref: '#/components/messages/set_sr_scale'}
+      set_seed: {$ref: '#/components/messages/set_seed'}
+      start: {$ref: '#/components/messages/start'}
+      pause: {$ref: '#/components/messages/pause'}
+      resume: {$ref: '#/components/messages/resume'}
+      reset: {$ref: '#/components/messages/reset'}
+  events:
+    address: messages
+    description: Messages the model emits back to the client (on "message").
+    messages:
+      state: {$ref: '#/components/messages/state'}
+      prompt_accepted: {$ref: '#/components/messages/prompt_accepted'}
+      image_accepted: {$ref: '#/components/messages/image_accepted'}
+      conditions_ready: {$ref: '#/components/messages/conditions_ready'}
+      generation_started: {$ref: '#/components/messages/generation_started'}
+      chunk_complete: {$ref: '#/components/messages/chunk_complete'}
+      generation_paused: {$ref: '#/components/messages/generation_paused'}
+      generation_resumed: {$ref: '#/components/messages/generation_resumed'}
+      command_error: {$ref: '#/components/messages/command_error'}
+operations:
+  sendCommand:
+    action: send
+    channel: {$ref: '#/channels/commands'}
+  receiveMessage:
+    action: receive
+    channel: {$ref: '#/channels/events'}
+components:
+  messages:
+    set_prompt:
+      name: set_prompt
+      payload: {type: object, properties: {prompt: {type: string}}}
+    schedule_prompt:
+      name: schedule_prompt
+      payload: {type: object, properties: {prompt: {type: string}, chunk: {type: integer}}}
+    set_image:
+      name: set_image
+      payload: {type: object, properties: {image: {type: string, description: FileRef}}}
+    set_conditioning:
+      name: set_conditioning
+      payload: {type: object, properties: {prompt: {type: string}, image: {type: string, description: FileRef}}}
+    set_image_strength:
+      name: set_image_strength
+      payload: {type: object, properties: {image_strength: {type: number, minimum: 0.0, maximum: 1.0}}}
+    set_sr_scale:
+      name: set_sr_scale
+      payload: {type: object, properties: {sr_scale: {type: string, enum: [off, 2x, 4x]}}}
+    set_seed:
+      name: set_seed
+      payload: {type: object, properties: {seed: {type: integer}}}
+    start:
+      name: start
+      payload: {type: object}
+    pause:
+      name: pause
+      payload: {type: object}
+    resume:
+      name: resume
+      payload: {type: object}
+    reset:
+      name: reset
+      payload: {type: object}
+    state:
+      name: state
+      payload:
+        type: object
+        properties:
+          running: {type: boolean}
+          started: {type: boolean}
+          paused: {type: boolean}
+          image_set: {type: boolean}
+          current_chunk: {type: integer}
+          current_frame: {type: integer}
+          current_prompt: {type: string}
+          image_strength: {type: number}
+          scheduled_prompts: {type: array}
+    prompt_accepted:
+      name: prompt_accepted
+      payload: {type: object, properties: {prompt: {type: string}}}
+    image_accepted:
+      name: image_accepted
+      payload: {type: object, properties: {width: {type: integer}, height: {type: integer}}}
+    conditions_ready:
+      name: conditions_ready
+      payload: {type: object, properties: {has_prompt: {type: boolean}, has_image: {type: boolean}}}
+    generation_started:
+      name: generation_started
+      payload: {type: object, properties: {prompt: {type: string}, chunk_index: {type: integer}}}
+    chunk_complete:
+      name: chunk_complete
+      payload: {type: object, properties: {chunk_index: {type: integer}, frames_emitted: {type: integer}, active_prompt: {type: string}}}
+    generation_paused:
+      name: generation_paused
+      payload: {type: object, properties: {chunk_index: {type: integer}}}
+    generation_resumed:
+      name: generation_resumed
+      payload: {type: object, properties: {chunk_index: {type: integer}}}
+    command_error:
+      name: command_error
+      payload: {type: object, properties: {command: {type: string}, reason: {type: string}}}

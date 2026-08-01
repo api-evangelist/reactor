@@ -1,0 +1,21 @@
+generated: '2026-07-20'
+method: searched
+source: https://docs.reactor.inc/quickstart, https://www.npmjs.com/package/create-reactor-app
+name: create-reactor-app
+type: scaffolder
+note: >-
+  Reactor ships a project-scaffolding CLI (create-reactor-app) rather than a
+  full resource-management CLI. It bootstraps a runnable real-time video app
+  wired with the SDK, auth token exchange, and a chosen model.
+install_methods:
+  - npx create-reactor-app my-app --model=helios
+  - npm create reactor-app
+package: create-reactor-app
+binary_home: packages/reactor-packages.yml
+flags:
+  - flag: --model
+    description: Model to scaffold the starter app around (e.g. helios).
+related_repos:
+  - name: homebrew-tools
+    url: https://github.com/reactor-team/homebrew-tools
+    description: Homebrew formulas for partner CLI tooling.

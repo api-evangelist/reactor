@@ -1,8 +1,16 @@
 aid: reactor
 name: Reactor
-description: 'Reactor is a company surfaced as a portfolio company of amplify-partners, lightspeed-venture-partners
-  and added to the API Evangelist network as a stub for enrichment. Sector: ai-ml. This profile is a lead
-  awaiting the enrichment pipeline.'
+description: >-
+  Reactor is a real-time video AI platform that streams generative video from
+  GPU-hosted models to web and mobile applications over WebRTC, with sub-second
+  round-trip latency and no infrastructure to manage. Developers connect through
+  a JavaScript/React SDK or an async Python SDK, mint short-lived session tokens
+  from a long-lived account API key, and control generation with a command/event
+  channel (set_prompt, start, pause, reset). Its model catalog includes Helios
+  (interactive real-time generation), SANA-Streaming (video-to-video editing),
+  LingBot and LingBot World 2 (navigable worlds), X2, LongLive-2.0 and
+  HappyOyster. Reactor is backed by Amplify Partners and Lightspeed Venture
+  Partners and is currently in public beta.
 url: https://raw.githubusercontent.com/api-evangelist/reactor/refs/heads/main/apis.yml
 x-type: company
 x-source: vc-portfolio
@@ -11,13 +19,50 @@ x-backed-by:
 - lightspeed-venture-partners
 x-tier: stub
 x-tier-reason: portfolio-lead
+accessModel:
+  pricing: unknown
+  onboarding: self-serve
+  trial: false
+  try_now: false
+  public: false
+  label: Self-serve signup
+  confidence: medium
+  source:
+  - authentication
+  generated: '2026-07-22'
+  method: derived
 specificationVersion: '0.20'
 created: '2026-07-17'
-modified: '2026-07-17'
+modified: '2026-07-20'
+image: https://www.reactor.inc/icon.png
 tags:
 - Company
 - Ai Ml
-apis: []
+- Video
+- Generative AI
+- Real-Time
+- WebRTC
+- Streaming
+- SDK
+- Media
+apis:
+- name: Reactor Realtime Video API
+  description: >-
+    Real-time generative video platform. A REST token endpoint mints session-scoped
+    JWTs; a WebRTC data channel carries the command/event interface that controls
+    model generation and streams video frames back.
+  humanURL: https://docs.reactor.inc
+  baseURL: https://api.reactor.inc
+  tags:
+  - Video
+  - Generative AI
+  - Real-Time
+  - WebRTC
+  properties:
+  - type: AsyncAPI
+    url: asyncapi/reactor-helios-asyncapi.yml
+  - type: Authentication
+    url: authentication/reactor-authentication.yml
 maintainers:
 - FN: Kin Lane
   email: kin@apievangelist.com
@@ -26,3 +71,62 @@ maintainers:
 common:
 - type: Website
   url: https://reactor.inc
+- type: DeveloperPortal
+  url: https://docs.reactor.inc
+- type: Documentation
+  url: https://docs.reactor.inc
+- type: APIReference
+  url: https://docs.reactor.inc/model-api-reference/overview
+- type: GettingStarted
+  url: https://docs.reactor.inc/quickstart
+- type: Support
+  url: https://discord.gg/tMcJM8N5N3
+- type: Blog
+  url: https://www.reactor.inc/blog
+- type: GitHubOrganization
+  url: https://github.com/reactor-team
+- type: SignUp
+  url: https://www.reactor.inc/dashboard
+- type: TermsOfService
+  url: https://www.reactor.inc/terms
+- type: PrivacyPolicy
+  url: https://www.reactor.inc/privacy
+- type: StatusPage
+  url: https://status.reactor.inc
+- type: ChangeLog
+  url: https://docs.reactor.inc/changelog
+- type: LLMsTxt
+  url: llms/reactor-llms.txt
+- type: Packages
+  url: packages/reactor-packages.yml
+- type: SDKs
+  url: packages/reactor-packages.yml
+- type: CLI
+  url: cli/reactor-cli.yml
+- type: Components
+  url: components/reactor-components.yml
+- type: MCPServer
+  url: mcp/reactor-mcp.yml
+- type: AgentSkill
+  url: skills/_index.yml
+- type: Authentication
+  url: authentication/reactor-authentication.yml
+- type: Conventions
+  url: conventions/reactor-conventions.yml
+- type: ErrorCatalog
+  url: errors/reactor-problem-types.yml
+- type: Lifecycle
+  url: lifecycle/reactor-lifecycle.yml
+- type: Conformance
+  url: conformance/reactor-conformance.yml
+- type: Sandbox
+  url: sandbox/reactor-sandbox.yml
+- type: AsyncAPI
+  url: asyncapi/reactor-helios-asyncapi.yml
+- type: DomainSecurity
+  url: security/reactor-domain-security.yml
+x-enrichment:
+  date: '2026-07-20'
+  status: enriched
+  artifacts_added: 16
+  pass: local-v1

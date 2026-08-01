@@ -1,0 +1,47 @@
+generated: '2026-07-20'
+method: searched
+source: https://docs.reactor.inc/authentication
+docs: https://docs.reactor.inc/authentication
+summary:
+  types: [apiKey, http]
+  api_key_in: [header]
+  api_key_prefix: "rk_"
+  token_type: JWT
+model: >-
+  Reactor uses a two-stage credential model. A long-lived account API key
+  (prefix rk_, created in the dashboard under API Keys) is exchanged server-side
+  for a short-lived, session-scoped JWT via POST https://api.reactor.inc/tokens.
+  Browser/client code never sees the API key — only the minted JWT is passed to
+  the SDK. The Python SDK performs the exchange automatically on connect().
+schemes:
+  - name: ReactorAPIKey
+    type: apiKey
+    in: header
+    parameter: Reactor-API-Key
+    note: Long-lived account key (rk_...); used only server-side against the /tokens endpoint.
+  - name: SessionJWT
+    type: http
+    scheme: bearer
+    bearerFormat: JWT
+    note: Short-lived session-scoped token returned by POST /tokens; passed to the SDK to open a model connection.
+token_exchange:
+  endpoint: POST https://api.reactor.inc/tokens
+  request_header: "Reactor-API-Key: rk_..."
+  request_body_example:
+    authorization_details:
+      - type: session
+        resources:
+          models:
+            match: ["helios"]
+        constraints:
+          max_sessions: 5
+    expires_after: 3600
+  response_example:
+    jwt: "<jwt>"
+    expires_at: 1234567890
+  scoping: >-
+    authorization_details of type "session" restrict a token to named models
+    (no wildcards) and to managing its own sessions only — no account API or key
+    management. Omitting authorization_details mints an unscoped full-account
+    token (never expose to browsers).
+  expiry: default 3600s (1h), configurable via expires_after up to a 6h server ceiling

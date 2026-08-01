@@ -1,0 +1,32 @@
+generated: '2026-07-20'
+method: searched
+source: https://docs.reactor.inc/model-api-reference/helios/schema, https://docs.reactor.inc/authentication
+format: custom
+note: >-
+  Reactor does not publish an RFC 9457 problem+json catalog. Errors surface in
+  two places: (1) the runtime command channel emits a `command_error` message
+  when a command is rejected; (2) the REST token endpoint rejects bad requests.
+  Captured from the documented message schema and auth docs.
+runtime_error_envelope:
+  message_type: command_error
+  fields:
+    command: The command that was rejected (string).
+    reason: Human-readable rejection reason (string).
+problems:
+  - id: command_error
+    channel: webrtc-data-channel
+    title: Command rejected by the model
+    detail: 'Emitted as a command_error message (fields command, reason) when a sent command is invalid, out of order, or not supported by the model.'
+    remediation: Ensure the connection is in "ready" state and the command/params match the model's schema (e.g. start requires a prompt at chunk 0).
+  - id: token_missing_key
+    channel: rest
+    status: 401
+    title: Missing or invalid API key
+    detail: POST /tokens without a valid Reactor-API-Key header is rejected.
+    remediation: Send a valid rk_ account key in the Reactor-API-Key header from server-side code.
+  - id: token_bad_authorization_details
+    channel: rest
+    status: 400
+    title: Invalid authorization_details
+    detail: authorization_details.type must be "session"; resources.models.match must be a non-empty list with no wildcards; constraints.max_sessions must be 1–500.
+    remediation: Correct the authorization_details payload per the authentication reference.

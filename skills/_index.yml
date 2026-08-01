@@ -1,0 +1,30 @@
+generated: '2026-07-20'
+method: searched
+source: https://github.com/reactor-team/reactor-skills
+install: npx skills add reactor-team/reactor-skills
+format: agentskills.io (SKILL.md frontmatter + references)
+note: >-
+  Provider-published Agent Skills, saved verbatim from the reactor-team/reactor-skills
+  repository (main branch). These are official Reactor skills for building with the
+  real-time video generation API.
+skills:
+  - file: reactor-reactor-sdk.md
+    name: reactor-sdk
+    description: Build real-time video AI applications with Reactor's JavaScript and Python SDKs (auth, connection lifecycle, commands, WebRTC tracks).
+    source: https://github.com/reactor-team/reactor-skills/blob/main/skills/reactor-sdk/SKILL.md
+  - file: reactor-helios-prompts.md
+    name: helios-prompts
+    description: Write effective prompt sequences for the Helios real-time video frame generation model.
+    source: https://github.com/reactor-team/reactor-skills/blob/main/skills/helios-prompts/SKILL.md
+  - file: reactor-sana-streaming-prompts.md
+    name: sana-streaming-prompts
+    description: Turn rough editing intent into production-grade instructions for the SANA-Streaming video-to-video model.
+    source: https://github.com/reactor-team/reactor-skills/blob/main/skills/sana-streaming-prompts/SKILL.md
+  - file: reactor-lingbot-world.md
+    name: lingbot-world
+    description: Author interactive LingBot video worlds from a description into a complete JSON environment.
+    source: https://github.com/reactor-team/reactor-skills/blob/main/skills/lingbot-world/SKILL.md
+  - file: reactor-lingbot-world-2-prompts.md
+    name: lingbot-world-2-prompts
+    description: Transform scene ideas into LingBot-World 2 session prompts (base prompt, action slots, seed image).
+    source: https://github.com/reactor-team/reactor-skills/blob/main/skills/lingbot-world-2-prompts/SKILL.md

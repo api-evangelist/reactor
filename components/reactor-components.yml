@@ -1,0 +1,27 @@
+generated: '2026-07-20'
+method: searched
+source: https://docs.reactor.inc/llms.txt
+loader: "@reactor-team/js-sdk"
+note: >-
+  Reactor ships a React component + hook library (distinct from the server-side
+  SDKs) for embedding real-time video generation directly in a web UI. Loaded
+  from the js-sdk package.
+families:
+  - family: React components
+    components:
+      - name: ReactorProvider
+        description: Context provider that establishes the model connection (modelName, jwtToken, connectOptions).
+      - name: ReactorView
+        description: Renders the video stream from a received track (main_video by default).
+      - name: WebcamStream
+        description: Captures and auto-publishes webcam video to a model sendonly track (for video-to-video).
+      - name: ReactorController
+        description: Auto-generates UI controls from the model's command schema (prototyping/debugging).
+  - family: React hooks
+    components:
+      - name: useReactor
+        description: Selector hook over the Reactor store (status, tracks, connect, sendCommand, publish, ...).
+      - name: useReactorMessage
+        description: Subscribe to application-scoped messages emitted by the model.
+      - name: useStats
+        description: Live WebRTC connection statistics, refreshed every 2s.

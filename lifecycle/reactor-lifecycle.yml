@@ -1,0 +1,17 @@
+generated: '2026-07-20'
+method: searched
+source: https://docs.reactor.inc, https://status.reactor.inc
+versioning:
+  scheme: package-semver
+  detail: Versioned through the SDK packages (@reactor-team/js-sdk 2.x, reactor-sdk 0.x). Model schemas are hand-written today and will be auto-generated over time.
+  stability: beta
+  note: Platform is in public-beta; docs warn of evolving APIs and possible breaking changes between releases.
+deprecation:
+  policy_url: null
+  sunset_header: false
+  note: No formal deprecation/Sunset policy published (early beta).
+sla:
+  url: null
+status_page: https://status.reactor.inc
+changelog: https://docs.reactor.inc/changelog
+deprecated_operations: []

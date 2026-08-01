@@ -1,0 +1,17 @@
+generated: '2026-07-20'
+method: searched
+source: https://docs.reactor.inc/quickstart, https://docs.reactor.inc/sdk-reference/using-the-sdk
+note: >-
+  Reactor does not publish payment-style test values. Its "sandbox" surface is a
+  local development runtime and a scaffolding tool, captured below. No secret
+  test credentials are published; API keys (rk_) are minted per account.
+local_runtime:
+  option: 'ReactorProvider prop `local: true` (or Reactor({ local: true }))'
+  url: http://localhost:8080
+  description: Connect the SDK to a locally running Reactor model runtime instead of the cloud API, for development without GPU cloud usage.
+scaffold:
+  command: npx create-reactor-app my-app --model=helios
+  description: Bootstraps a complete runnable app (SDK + auth token exchange + selected model) for testing an integration end to end.
+credentials:
+  api_key_prefix: "rk_"
+  token_mode: Short-lived session-scoped JWTs minted from POST /tokens (expires_after up to 6h) — safe to use for test sessions.

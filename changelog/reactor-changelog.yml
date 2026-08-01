@@ -1,0 +1,16 @@
+generated: '2026-07-20'
+method: searched
+source: https://docs.reactor.inc/changelog
+url: https://docs.reactor.inc/changelog
+scheme: package-semver
+note: >-
+  Reactor publishes a dated changelog at docs.reactor.inc/changelog. The page is
+  client-rendered so individual dated entries were not machine-extractable at
+  capture time; the current shipped SDK versions are recorded below as the
+  version anchor. Recent-window entries[] to be enriched on a later pass when the
+  rendered feed is reachable.
+current_versions:
+  js_sdk: 2.12.1
+  python_sdk: 0.8.0
+  create_reactor_app: 2.1.3
+entries: []

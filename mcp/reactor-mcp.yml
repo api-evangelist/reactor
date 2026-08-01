@@ -1,0 +1,51 @@
+generated: '2026-07-20'
+method: derived
+status: candidate
+source: https://docs.reactor.inc/model-api-reference/helios/schema
+note: >-
+  No official hosted/remote MCP server was found for Reactor (searched docs, the
+  reactor-team GitHub org, and the @modelcontextprotocol namespace). This is a
+  CANDIDATE tool list derived from the documented Helios real-time command
+  surface. Reactor's interface is a WebRTC data channel, not REST, so tools map
+  to sendCommand(command, data) calls after a session reaches "ready".
+server:
+  name: reactor
+  transport: http
+  url: null
+tools:
+  - name: mint_session_token
+    description: Exchange the account API key for a short-lived, session-scoped JWT.
+    source_operation: POST https://api.reactor.inc/tokens
+  - name: set_prompt
+    description: Set the active generation prompt (auto-picks the right chunk index).
+    source_operation: Helios command set_prompt
+  - name: schedule_prompt
+    description: Apply a prompt at a specific chunk index during generation.
+    source_operation: Helios command schedule_prompt
+  - name: set_image
+    description: Set or change the reference image used for conditioning mid-generation.
+    source_operation: Helios command set_image
+  - name: set_conditioning
+    description: Set prompt and reference image atomically in a single message.
+    source_operation: Helios command set_conditioning
+  - name: set_image_strength
+    description: Control how strongly the reference image anchors output (0.0–1.0).
+    source_operation: Helios command set_image_strength
+  - name: set_sr_scale
+    description: Set super-resolution upscaling (off, 2x, 4x).
+    source_operation: Helios command set_sr_scale
+  - name: set_seed
+    description: Set the RNG seed for reproducible output.
+    source_operation: Helios command set_seed
+  - name: start
+    description: Begin video generation (requires a prompt at chunk 0).
+    source_operation: Helios command start
+  - name: pause
+    description: Pause generation after the current chunk completes.
+    source_operation: Helios command pause
+  - name: resume
+    description: Resume generation from the pause point.
+    source_operation: Helios command resume
+  - name: reset
+    description: Halt ongoing generation and clear all state except the seed.
+    source_operation: Helios command reset
