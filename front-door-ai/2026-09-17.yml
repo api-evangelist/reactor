@@ -1,0 +1,25 @@
+# Front Door AI Index — reactor — 2026-09-17
+# AI vocabulary counted on the provider's root page. Generated; do not edit.
+# `score` is null unless ownership is `own` — see front_door_ai.py.
+front_door_ai:
+  slug: reactor
+  lexicon_version: '1.0'
+  probed_at: '2026-09-17'
+  host: reactor.inc
+  final_host: www.reactor.inc
+  ownership: own
+  owner: reactor
+  shares_host_with: null
+  inherited_from: null
+  verdict: scored
+  score: 2
+  host_score: 2
+  density: 40.0
+  words: 50
+  tiers:
+    agentic: 2
+    core: 0
+    model: 0
+  ambiguous: 0
+  top_terms:
+    inference: 2
