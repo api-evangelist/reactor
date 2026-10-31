@@ -64,6 +64,116 @@
 > Full detail: **[Where this data comes from](https://apievangelist.com/about/where-our-data-comes-from)**
 <!-- API-EVANGELIST-PROVENANCE:END -->
 
-Reactor is a company surfaced as a portfolio company of amplify-partners, lightspeed-venture-partners and added to the API Evangelist network as a stub for enrichment. Sector: ai-ml. This profile is a lead awaiting the enrichment pipeline.
+Reactor is a real-time video AI platform that streams generative video from GPU-hosted models to web and mobile applications over WebRTC, with sub-second round-trip latency and no infrastructure to manage. Developers connect through a JavaScript/React SDK or an async Python SDK, mint short-lived session tokens from a long-lived account API key, and control generation with a command/event channel (set_prompt, start, pause, reset). Its model catalog includes Helios (interactive real-time generation), SANA-Streaming (video-to-video editing), LingBot and LingBot World 2 (navigable worlds), X2, LongLive-2.0 and HappyOyster. Reactor is backed by Amplify Partners and Lightspeed Venture Partners and is currently in public beta.
 
-Backed by: amplify-partners, lightspeed-venture-partners — https://reactor.inc
+**Areas:** Company · Artificial Intelligence · Video · Generative AI · Real-Time · WebRTC · Streaming · SDK · Media
+
+## Reactor on APIs.io
+
+Everything profiled for Reactor is published on APIs.io rather than in this repository. Start at the provider page — **[apis.io/providers/reactor/](https://apis.io/providers/reactor/)** — or go straight to one of the APIs or properties below.
+
+### APIs (1)
+
+- [Reactor Realtime Video API](https://apis.io/apis/reactor/reactor-realtime-video-api/) — Real-time generative video platform. A REST token endpoint mints session-scoped JWTs; a WebRTC data channel carries the command/event interface that…
+
+### Published properties
+
+Each property below is a page on APIs.io carrying the machine-readable artifact and what it says.
+
+#### AsyncAPI (1)
+
+Event-driven and webhook contracts.
+
+- [Reactor Helios Realtime API](https://apis.io/asyncapis/reactor/reactor-helios-asyncapi/)
+
+#### Event channels (2)
+
+Individual events and webhooks the provider emits.
+
+- [commands](https://apis.io/channels/reactor/commands/)
+- [messages](https://apis.io/channels/reactor/messages/)
+
+#### MCP servers (1)
+
+Model Context Protocol servers that expose the API to agents.
+
+- [reactor](https://apis.io/servers/reactor/reactor/)
+
+#### Security (2)
+
+Authentication, trust centre, and vulnerability disclosure.
+
+- [Reactor Authentication](https://apis.io/security/reactor/reactor-authentication/)
+- [Reactor Domain Security](https://apis.io/security/reactor/reactor-domain-security/)
+
+## Where to find this API
+
+Links to the company's own pages. This repository publishes no copy of their specifications — the canonical document is theirs and lives at the URLs below.
+
+- [Website](https://reactor.inc)
+- [Documentation](https://docs.reactor.inc)
+- [Getting started](https://docs.reactor.inc/quickstart)
+- [API reference](https://docs.reactor.inc/model-api-reference/overview)
+- [Sign up](https://www.reactor.inc/dashboard)
+- [Support](https://discord.gg/tMcJM8N5N3)
+- [Changelog](https://docs.reactor.inc/changelog)
+- [Blog](https://www.reactor.inc/blog)
+- [Terms of service](https://www.reactor.inc/terms)
+- [Privacy policy](https://www.reactor.inc/privacy)
+- [GitHub](https://github.com/reactor-team)
+- [Status](https://status.reactor.inc)
+
+## API Evangelist rating
+
+**Kin Score 46.0** — developing · rubric 0.25.0 · scored 2026-10-23
+
+| Facet | Score |
+|---|---|
+| Discoverability | 73.2 |
+| Contract quality | 39.6 |
+| Contract governance | 4.5 |
+| Operational transparency | 34.2 |
+| Developer ergonomics | 81.0 |
+| Access clarity | 34.2 |
+
+**Agent readiness 23.0** — agent-aware
+
+| Agent-readiness dimension | Result |
+|---|---|
+| Spec Presence | yes |
+| Agentic Access | — |
+| Reversibility Documented | — |
+| MCP Server | — |
+| Auth Clarity | bearer (partial credit) |
+| Idempotency | — |
+| Error Semantics | documented (partial credit) |
+| OpenAPI Examples | — |
+| Rate Limit Signal | — |
+| Event Surface Described | derived (partial credit) |
+| Agent Skills | yes |
+| Well Known Catalog | — |
+| Consent Identity | — |
+| Agent Card | — |
+| Dry Run Mode | — |
+| Delegated Identity | — |
+| Protected Resource Metadata | — |
+| Dynamic Client Registration | — |
+| Agentic Commerce | — |
+| Pagination Ratio | na |
+| Operation Distinctiveness | na |
+
+**Regulatory alignment 22.7** — AI & Biometrics
+
+The rubric is published at [github.com/api-evangelist/kin-score](https://github.com/api-evangelist/kin-score). The per-check breakdown behind these numbers — which checks were earned, partial or missed — along with score history and how this provider compares to its peers, is available at [apis.io/providers/reactor/](https://apis.io/providers/reactor/).
+
+## How this profile is made
+
+API Evangelist profiles a company's public API surface the way a developer would find it: the website, developer portal and documentation, the specifications it publishes, its public repositories, and its pricing, status and changelog pages. From that it derives the properties above — contracts split per API, workflows, schemas, collections, governance rules, plans and rate limits — and scores them against the published [Kin Score rubric](https://github.com/api-evangelist/kin-score).
+
+The artifacts are published on [APIs.io](https://apis.io), not in this repository. This repository is the public record for Reactor: the place to say something is wrong, missing or out of date, and to ask for a re-score or a removal.
+
+## Open an issue
+
+- **Something about this listing** — a wrong description, a missing API, a stale artifact or a question about the rating: [open an issue on this repository](https://github.com/api-evangelist/reactor/issues/new).
+- **A new API, or one that is not in the catalog yet** — [submit it on APIs.io](https://apis.io/add/).
+- **Anything else** — [the APIs.io inbox](https://github.com/api-search/inbox/issues/new) or [info@apievangelist.com](mailto:info@apievangelist.com).
